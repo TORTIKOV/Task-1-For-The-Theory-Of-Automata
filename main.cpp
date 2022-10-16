@@ -1,8 +1,10 @@
 #include <iostream>
 
-bool rasp(std::string in)
+bool KA(std::string in)
 {
-    char c;                     // c - бегунок по тексту
+    if(in[0] == in[1]) return false;
+    
+    char c;                      // c - бегунок по тексту
 
     bool two_br_opened = false;  // проверка на открытие двух скобок
     bool one_br_opened = false;  // проверка на открытие одной скобки
@@ -10,18 +12,21 @@ bool rasp(std::string in)
     int a_counter = 0;          // проверка на четность 'a'
     int b_counter = 0;          // проверка на нечетность 'b'
     
-    int idx = 1;
-    c = in[idx];
+    int idx = 1;                // индекс перемещения по строке
+    c = in[idx];                // передаем бегунку значение символа после '%'
     
+    
+    // Цикл, который проходится по переданной строке
     do
     {
+
         c = in[idx];
         
-        if(c == '(')
+        if(c == '(')            // Если символ '(', то проверяем одинарная скобка или двойная
         {
             if(in[idx + 1] == '(' )
             {
-                
+                // Если есть уже открытые скобки, тогда строка нас не устраивает.
                 if(two_br_opened == true || one_br_opened == true)
                 {
                     std::cout << "Ошибка в расстановке скобок. Не подходит. " << std::endl;
@@ -33,25 +38,27 @@ bool rasp(std::string in)
                 c = in[idx];
             } else {
                 
+                // Если есть уже открытые скобки, тогда строка нас не устраивает.
                 if(two_br_opened == true || one_br_opened == true)
                 {
                     std::cout << "Ошибка в расстановке скобок. Не подходит. " << std::endl;
                     return false;
                 }
                 
-                one_br_opened = true;
-                ++idx;
+                one_br_opened = true;  //Показываем, что уже есть открытые скобки.
+                ++idx;                 //Смещаемся на символ вперед. Это либо 'a', либо 'b'
                 c = in[idx];
+                
             }
             
+            //
             if(c == 'a' || c == 'b')
             {
                 
             } else {
-                std::cout << "Ошибка с буквами. Не подходит. " << std::endl;
+                std::cout << "Ошибка в расстановке скобок. Не подходит. " << std::endl;
                 return false;
             }
-        
         
             if((c == 'a' || c == 'b') && (one_br_opened || two_br_opened))
             {
@@ -62,7 +69,7 @@ bool rasp(std::string in)
                     c = in[idx];
                 }
                 
-                if((a_counter % 2 != 0) && (c != 'b'))
+                if((a_counter % 2 != 0) || (c != 'b'))
                 {
                     std::cout << "Нечетное количество 'a'. Не подходит. " << std::endl;
                     return false;
@@ -129,12 +136,57 @@ bool rasp(std::string in)
     return true;
 }
 
-
+void recognition(std::string in)
+{
+    std::string out = "";
+    char c;
+    int place = 0;
+    bool percent = false;
+    bool isempty = true;
+    
+    for(int idx = 0; idx < in.length(); ++idx)
+    {
+        c = in[idx];
+        if(c == '%')
+        {
+            out += c;
+            percent = true;
+            place = idx + 1;
+            ++idx;
+            c = in[idx];
+            
+            while(c != '%')
+            {
+                out += c;
+                ++idx;
+                c = in[idx];
+                if(idx > in.length()) break;
+            }
+            if(idx > in.length()) break;
+            
+            --idx;
+            out += '%';
+            
+            if(KA(out) == true)
+            {
+                std::cout << place << " : " << out << std::endl;
+                isempty = false;
+            }
+            out = "";
+            place = 0;
+            
+        }
+    }
+    if(isempty == true)
+    {
+        std::cout << "Цепочек не найдено" << std::endl;
+    }
+    
+}
 
 int main(int argc, const char * argv[]) {
-    std::string test = "%(aabbb)(bb)((aab))%";
-    
-    std::cout << rasp(test) << std::endl;
+    std::string test = "%(aabbb)(b)((aab))%(aabbb)(b)((aab))%";
+    recognition(test);
     
     return 0;
 }
